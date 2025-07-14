@@ -22,7 +22,8 @@ def find_project_root(start: Optional[Path] = None) -> Optional[Path]:
 
 TAMP_DIR = 'temp'
 if find_project_root() is not None:
-    TAMP_DIR = find_project_root() / TAMP_DIR
+    TAMP_DIR = find_project_root() / TAMP_DIR 
+    # 这里会有蜜汁语法报错，不需要理会
 TAMP_DIR = Path(TAMP_DIR)
 TAMP_DIR.mkdir(exist_ok=True)
 
@@ -58,6 +59,24 @@ def get_query_string(fields: list, query_params: dict):
 
 #TODO 清洗fofa资产数据，并临时缓存数据
 def assets_filter(project_name:str | Path, res: dict | str, fields: list):
+    """
+    清洗资产数据并临时缓存为Parquet文件。
+
+    Args:
+        project_name (str | Path): 项目名称或路径，用于创建临时缓存目录。
+        res (dict | str): 资产数据，字典或JSON字符串格式，需包含'results'键。
+        fields (list): 需要保留的字段列表。
+
+    Returns:
+        Path: Parquet文件的路径。
+        None: 如果数据格式错误或res['error']为True。
+
+    处理流程：
+        1. 检查res类型并转换为dict。
+        2. 若res['error']为True或格式不符则返回None。
+        3. 按fields清洗数据，生成资产列表。
+        4. 将资产列表保存为Parquet文件，路径为项目临时目录下。
+    """
     # 若res['error']为True，则返回None
     if isinstance(res, str):
         res = json.loads(res)
@@ -76,8 +95,9 @@ def assets_filter(project_name:str | Path, res: dict | str, fields: list):
         dict(zip(fields, asset))
         for asset in raw_assets
     ]
+    table = pa.table({field: [asset.get(field) for asset in assets] for field in fields})
     TAMP_DIR = TAMP_DIR / f"raw_assets.parquet"
-    pq.write_table(pa.table(assets), TAMP_DIR)
+    pq.write_table(table, TAMP_DIR)
 
     return TAMP_DIR
 
@@ -86,5 +106,4 @@ if __name__ == '__main__':
     right = [1, 2, 3]
     # 将两个列表按顺序分别打包成键值对的键和值，然后转换成字典
     print(dict(zip(left, right)))
-    
-    
+
