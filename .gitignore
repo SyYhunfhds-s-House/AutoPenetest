@@ -1,4 +1,5 @@
 **/*.yml
 **/tests
 **/tmp
+**/temp
 **/output
