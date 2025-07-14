@@ -45,6 +45,26 @@ def asset_query_fofa(
                      size: int=10, page: int = 1,
                      timeout: int = 10
                      ): 
+    """
+    使用FOFA API进行资产查询，并将结果临时缓存为Parquet文件。
+
+    Args:
+        project_name (str): 项目名称，用于区分缓存目录。
+        query_params (dict): 查询参数，键值对形式。
+        size (int, optional): 查询返回的资产数量，默认10。
+        page (int, optional): 查询页码，默认1。
+        timeout (int, optional): 请求超时时间（秒），默认10。
+
+    Returns:
+        Path: Parquet文件的路径，包含清洗后的资产数据。
+        None: 查询或数据处理失败时返回None。
+
+    处理流程：
+        1. 构造查询字符串并请求FOFA API。
+        2. 捕获异常并记录日志。
+        3. 清洗返回数据并保存为Parquet文件。
+        4. 返回Parquet文件路径。
+    """
     query_string = get_query_string(fields=fields, query_params=query_params)
     params = {
         'qbase64': query_string,
@@ -53,6 +73,8 @@ def asset_query_fofa(
         'key': _key,
         'fields': ','.join(fields)
     }
+    logger.info(f"正在进行{project_name}的资产查询任务")
+    logger.debug(f"查询参数为{query_params}, 返回值列表为{fields},查询条数为{size}")
     try:
         res = requests.get(
             url=f'{_api}{_endpoint}',
