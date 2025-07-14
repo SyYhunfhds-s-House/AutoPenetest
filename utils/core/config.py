@@ -24,7 +24,7 @@ def load_config(config_filename="config.yml"):
         raise RuntimeError("Could not locate project root")
     config_filepath = project_root / config_filename
     try:
-        with open(config_filepath, 'r') as f:
+        with open(config_filepath, 'r', encoding='utf-8') as f:
             res = safe_load(f)
             return res
     except FileNotFoundError:
