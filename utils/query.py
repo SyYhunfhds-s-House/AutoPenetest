@@ -3,6 +3,9 @@ from core import *
 import requests
 import json
 
+import pyarrow as pa
+import pyarrow.parquet as pq
+
 _config = load_config()
 
 fofa_api = _config['api']['fofa']
@@ -26,12 +29,17 @@ def test_query(query_params: dict, size: int=10, page: int = 1):
         url=f'{_api}{_endpoint}',
         params=params,
     )
-    list_res = json.loads(res.text)
+    dict_res = json.loads(res.text)
     from rich.console import Console
     console = Console()
-    console.print(list_res)
+    console.print(dict_res)
+    
+    temp_dir = assets_filter(project_name='test', res=dict_res, fields=fields)
+    filtered_assets = pq.read_table(temp_dir)
+    console.print(filtered_assets)
     
 if __name__ == '__main__':
     test_query({
         'domain': 'baidu.com'
     })
+    
