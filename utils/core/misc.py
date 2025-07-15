@@ -107,6 +107,13 @@ def assets_filter(project_name:str | Path, res: dict | str, fields: list):
 
     return TAMP_DIR
 
+# TODO 编写辅助函数，用于表格合并
+def merge_tables(big_table: pa.Table, small_table: pa.Table) -> pa.Table:
+    target_schema = big_table.schema
+    small_table_casted = small_table.cast(target_schema)
+    merged_table = pa.concat_tables([big_table, small_table_casted])
+    return merged_table
+
 if __name__ == '__main__':
     left = ['1', '2', '3']
     right = [1, 2, 3]
