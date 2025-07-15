@@ -93,7 +93,11 @@ def asset_query_fofa(
     return temp_filepath
     
 if __name__ == '__main__':
-    test_query({
-        'domain': 'baidu.com'
-    })
+    temp_dir = asset_query_fofa(
+        'hello', {
+            'domain': 'baidu.com'
+        }
+    )
+    data = pq.read_table(temp_dir)
+    print(data)
     

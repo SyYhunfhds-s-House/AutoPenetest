@@ -57,7 +57,6 @@ def get_query_string(fields: list, query_params: dict):
             query_strings.append(f'{key}="{value}"')
     return b64encode(" && ".join(query_strings).encode())
 
-#TODO 清洗fofa资产数据，并临时缓存数据
 def assets_filter(project_name:str | Path, res: dict | str, fields: list):
     """
     清洗资产数据并临时缓存为Parquet文件。

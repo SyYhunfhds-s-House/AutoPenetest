@@ -3,3 +3,10 @@
 **/tmp
 **/temp
 **/output
+**/__pycache__
+**/**/__pycache__
+nuclei-templates
+logs
+nuclei*
+nuclei.exe
+temp
