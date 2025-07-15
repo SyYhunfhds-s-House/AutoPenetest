@@ -95,6 +95,13 @@ def assets_filter(project_name:str | Path, res: dict | str, fields: list):
         for asset in raw_assets
     ]
     table = pa.table({field: [asset.get(field) for asset in assets] for field in fields})
+    # 给表格增加一个列"is_alive" # 默认值为True
+    table = table.append_column('is_alive', pa.array([True] * len(table)))
+    # 对表格按link列进行去重
+    _df = table.to_pandas()
+    _df = _df.drop_duplicates(subset=['link'])
+    table = pa.Table.from_pandas(_df)
+    del _df
     TAMP_DIR = TAMP_DIR / f"raw_assets.parquet"
     pq.write_table(table, TAMP_DIR)
 
