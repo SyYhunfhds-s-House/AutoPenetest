@@ -2,6 +2,7 @@
 from pathlib import Path
 from typing import Optional
 from functools import lru_cache
+from yaml import safe_load
 
 @lru_cache(maxsize=None)
 def find_project_root(start: Optional[Path] = None) -> Optional[Path]:
@@ -15,6 +16,23 @@ def find_project_root(start: Optional[Path] = None) -> Optional[Path]:
         if (path / '.gitignore').is_file():
             return path
     return None
+
+@lru_cache
+def load_config(config_filename="config.yml"):
+    project_root = find_project_root()
+    if project_root is None:
+        raise RuntimeError("Could not locate project root")
+    config_filepath = project_root / config_filename
+    try:
+        with open(config_filepath, 'r', encoding='utf-8') as f:
+            res = safe_load(f)
+            return res
+    except FileNotFoundError:
+        raise RuntimeError("Config file not found")
+    
+    if res is None:
+        raise RuntimeError("Config file is empty")
+_config = load_config()
 
 from loguru import logger
 
@@ -34,7 +52,7 @@ def setup_logger():
     # 移除默认的 loguru 处理器
     logger.remove()
     # 控制台输出
-    logger.add(lambda msg: print(msg, end=""), level="INFO")
+    logger.add(lambda msg: print(msg, end=""), level=_config['log']['level'])
     # 文件输出
     logger.add(str(log_file), rotation="10 MB", retention="10 days", encoding="utf-8", level="INFO")
     return logger
