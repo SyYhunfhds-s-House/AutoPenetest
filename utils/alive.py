@@ -1,3 +1,4 @@
+from core import *
 from query import _config, asset_query_fofa # 为了过类型检查
 from query import *
 from tqdm import tqdm
@@ -24,21 +25,35 @@ disable_warnings(InsecureRequestWarning)
 def alive_check(
     url: str,
     filter_status_code: list = [200, 301, 302], # 过滤状态, 默认[200, 301, 302]
-    index: int = -1, # 任务序号, 备用, 默认-1
+    # index: int = -1, # 任务序号, 备用, 默认-1
 ):
     try:
         res = httpx.get(url=url)
     except SSLCertVerificationError:
-        return index, False # 禁用了还能报错那只能放着不管了
+        return url, False # 禁用了还能报错那只能放着不管了
     
     if res.status_code in filter_status_code:
-        return index, True
-    return index, False
+        return url, True
+    return url, False
 
 # TODO 整合单元函数，使用线程池分批进行扫描
 def alive_check_batch(
     project_temp: str | Path, # 缓存文件路径
     urls: list[str],
     max_workers: int = max_workers,
+    **extra_params,
+    # filter_status_code: list[int] = [200, 301, 302], # 过滤状态, 默认[200, 301, 302]
 ):
-    pass
+    alive_res = {
+        'link': urls,
+        'is_alive': [True] * len(urls)  # 默认全部为True,
+    }
+    
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = list(executor.map(alive_check, urls, **extra_params))
+    
+        for url, is_alive in tqdm(futures, desc="Checking URLs", total=len(urls)):
+            index = urls.index(url)
+            alive_res['is_alive'][index] = is_alive
+            
+    return alive_res
