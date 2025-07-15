@@ -11,3 +11,5 @@ nuclei*
 nuclei.exe
 temp
 **/example
+nuclei-community-poc
+logs/*

@@ -101,5 +101,6 @@ if __name__ == '__main__':
         }
     )
     data = pq.read_table(temp_dir)
+    print(type(data.select(['link'])))
     console.print(data.select(['link']))
     
