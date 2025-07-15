@@ -93,11 +93,13 @@ def asset_query_fofa(
     return temp_filepath
     
 if __name__ == '__main__':
+    from rich.console import Console
+    console = Console()
     temp_dir = asset_query_fofa(
         'hello', {
             'domain': 'baidu.com'
         }
     )
     data = pq.read_table(temp_dir)
-    print(data)
+    console.print(data.select(['link']))
     

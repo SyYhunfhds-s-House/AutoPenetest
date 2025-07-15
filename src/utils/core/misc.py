@@ -114,8 +114,14 @@ def merge_tables(big_table: pa.Table, small_table: pa.Table) -> pa.Table:
     return merged_table
 
 if __name__ == '__main__':
-    left = ['1', '2', '3']
-    right = [1, 2, 3]
-    # 将两个列表按顺序分别打包成键值对的键和值，然后转换成字典
-    print(dict(zip(left, right)))
+    from platform import system
+    static_path = __file__
+    print(static_path)
+    current_os = system()
+    if current_os == 'Windows':
+        static_filename = static_path.split('\\')[-1]
+    elif current_os == 'Linux':
+        static_filename = static_path.split('/')[-1]
+    print(static_filename)
+    
 
