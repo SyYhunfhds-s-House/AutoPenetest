@@ -2,6 +2,40 @@
 
 from core import logger, load_config
 from pathlib import Path
+from functools import lru_cache # 缓存函数结果以提高性能
+from typing import Optional
+from yaml import safe_load
+
+@lru_cache(maxsize=None)
+def find_project_root(start: Optional[Path] = None) -> Optional[Path]:
+    """
+    根据 .gitignore 寻找项目根目录。
+    :param start: 起始目录，默认 Path.cwd()
+    :return: 含 .gitignore 的目录 Path，或 None
+    """
+    start = start or Path.cwd()
+    for path in (start, *start.parents):   # 当前目录 + 所有上层目录
+        if (path / '.gitignore').is_file():
+            return path
+    return None
+
+# 获取项目根目录
+# 如果没有.gitignore文件，则无法定位项目根目录
+project_root_path = find_project_root()
+if project_root_path is None:
+    logger.error("Could not locate project root")
+    raise RuntimeError("Could not locate project root")
+# 获取nuclei CLI参数配置文件路径
+nuclei_cli_params_path = project_root_path / "nuclei_cli_params.yml"
+if not nuclei_cli_params_path.exists():
+    logger.error(f"Nuclei CLI parameters file {nuclei_cli_params_path} does not exist.")
+    raise FileNotFoundError(f"Nuclei CLI parameters file {nuclei_cli_params_path} does not exist.")
+# 读取nuclei CLI参数配置文件
+with open(nuclei_cli_params_path, 'r', encoding='utf-8') as f:
+    nuclei_cli_params = safe_load(f)
+if nuclei_cli_params is None or not isinstance(nuclei_cli_params, dict) or nuclei_cli_params == {}:
+    logger.error("Nuclei CLI parameters file is empty")
+    raise RuntimeError("Nuclei CLI parameters file is empty")
 
 def _basic_generate_nuclei_command(
     project_name: str, # 输出路径
