@@ -3,7 +3,7 @@
 from core import logger, load_config
 from pathlib import Path
 
-def generate_nuclei_command(
+def _basic_generate_nuclei_command(
     project_name: str, # 输出路径
     specified_template_path: str, 
     urls: list = None,
@@ -29,11 +29,26 @@ def generate_nuclei_command(
         logger.error("Nuclei executable path or template directory is not configured.")
         raise RuntimeError("Nuclei configuration is incomplete.")
     # 加入模板路径
-    command = f"{exe_path} -t {Path(template_dir) / specified_template_path}"
+    command = f"{exe_path}"
+    template_mode = config['modes']['nuclei']['templates']
+    for idx, template in enumerate(template_mode):
+        print(f"[{idx + 1}] {template}")
+    specified_idx = input(f"请选择要使用的模板编号 (1-{len(template_mode)}): ")
+    try:
+        specified_template_path = template_mode[int(specified_idx)-1]
+    except IndexError:
+        logger.error("Invalid index selected.")
+        raise ValueError("Invalid index selected.")
+    template_path = Path(template_dir) / specified_template_path
+    if not template_path.exists():
+        logger.error(f"Template path {template_path} does not exist.")
+        raise FileNotFoundError(f"Template path {template_path} does not exist.")
+    command += f" -t {template_path}"  # -t 参数指定模板路径
     # 加入威胁等级
     if severity is None:
         severity = nuclei_config.get('severity', [])
-    command += f" -s {','.join(severity)}"
+    if severity is not None or severity != []:
+        command += f" -s {','.join(severity)}"
     # 加入输出路径
     output_path = Path(config['basedir']['result']) / Path(project_name)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -58,7 +73,7 @@ if __name__ == "__main__":
     urls = ["http://example.com"]
     severity = ["high"]
     try:
-        command = generate_nuclei_command(project_name, specified_template_path, urls, severity)
+        command = _basic_generate_nuclei_command(project_name, specified_template_path, urls, severity)
         print(f"Generated Nuclei command: \n{command}")
     except Exception as e:
         logger.error(f"Error generating Nuclei command: {e}")
