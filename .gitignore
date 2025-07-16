@@ -13,3 +13,6 @@ temp
 **/example
 nuclei-community-poc
 logs/*
+scratch.py
+logs/*
+**/*.log

@@ -1,9 +1,0 @@
-2025-07-14 22:47:28.972 | INFO     | __main__:asset_query_fofa:76 - 正在进行hello的资产查询任务
-2025-07-15 20:34:38.046 | INFO     | __main__:asset_query_fofa:76 - 正在进行hello的资产查询任务
-2025-07-15 20:36:18.905 | INFO     | __main__:asset_query_fofa:76 - 正在进行hello的资产查询任务
-2025-07-15 20:39:17.963 | INFO     | __main__:alive_check_batch:58 - 正在扫描https://xiongzhang.baidu.com等10个URL是否存活
-2025-07-15 20:41:43.274 | INFO     | __main__:alive_check_batch:64 - [36m正在扫描https://xiongzhang.baidu.com等10个URL是否存活
-2025-07-15 20:42:56.973 | INFO     | __main__:alive_check_batch:68 - [36m正在扫描https://xiongzhang.baidu.com等10个URL是否存活
-2025-07-15 20:43:03.650 | WARNING  | __main__:alive_check:42 - [33mhttps://console.vcp.baidu.com连接超时
-2025-07-15 20:43:03.681 | WARNING  | __main__:alive_check:42 - [33mhttps://list.video.baidu.com连接超时
-2025-07-15 20:43:03.705 | INFO     | __main__:alive_check_batch:76 - [32m扫描完成, 存活的URL数量: 8
