@@ -120,6 +120,7 @@ def merge_tables(big_table: pa.Table | DataFrame, small_table: pa.Table | DataFr
         
     Raises:
         TypeError: 如果输入类型不是PyArrow Table或Pandas DataFrame
+        ValueError: 如果两个表没有共同字段
     """
     # 转换big_table为PyArrow Table
     if isinstance(big_table, DataFrame):
@@ -133,10 +134,35 @@ def merge_tables(big_table: pa.Table | DataFrame, small_table: pa.Table | DataFr
     elif not isinstance(small_table, pa.Table):
         raise TypeError(f"small_table必须是pyarrow.Table或pandas.DataFrame类型，实际是{type(small_table)}")
     
-    # 合并表格
-    target_schema = big_table.schema
-    small_table_casted = small_table.cast(target_schema)
-    return pa.concat_tables([big_table, small_table_casted])
+    # 获取字段信息
+    big_fields = set(big_table.schema.names)
+    small_fields = set(small_table.schema.names)
+    common_fields = big_fields & small_fields
+    
+    if not common_fields:
+        raise ValueError("两个表没有共同的字段，无法合并")
+    
+    # 处理小表独有字段
+    small_only_fields = small_fields - big_fields
+    if small_only_fields:
+        # 为大表添加小表独有的字段(设为空值)
+        for field in small_only_fields:
+            field_type = small_table.schema.field(field).type
+            big_table = big_table.append_column(field, pa.array([None] * len(big_table), type=field_type))
+    
+    # 合并表格(以小表字段值为准)
+    big_df = big_table.to_pandas()
+    small_df = small_table.to_pandas()
+    
+    # 更新大表数据(用小表覆盖共有字段)
+    for field in common_fields:
+        big_df[field].update(small_df[field])
+    
+    # 添加小表独有字段数据
+    for field in small_only_fields:
+        big_df[field] = small_df[field]
+    
+    return pa.Table.from_pandas(big_df)
 
 if __name__ == '__main__':
     from platform import system
