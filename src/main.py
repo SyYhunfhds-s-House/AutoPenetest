@@ -65,10 +65,17 @@ def main(
         small_table=alive_table, big_table=raw_assets
         )
     logger.info(f"{Fore.GREEN}已合并探活结果和原始资产数据")
-    print(f"{Fore.CYAN}合并后的资产数据表格:\n{alive_assets[:10]}")
     
     # 根据is_alive列的布尔值删去无法访问的资产的行
-    alive_assets = alive_assets[alive_assets['is_alive']].reset_index(drop=True)
+    if isinstance(alive_assets, pa.Table):
+        # 转换为pandas DataFrame进行过滤
+        alive_df = alive_assets.to_pandas()
+        alive_df = alive_df[alive_df['is_alive']].reset_index(drop=True)
+        alive_assets = pa.Table.from_pandas(alive_df)
+        del alive_df
+    else:
+        alive_assets = alive_assets[alive_assets['is_alive']].reset_index(drop=True)
+    
     logger.info(f"{Fore.GREEN}已过滤不活跃的资产")
     return alive_assets
 
@@ -88,4 +95,4 @@ if __name__ == "__main__":
         scan_settings=scan_settings,
         asset_params=asset_params
     )
-    # print(cache_parquet[:10])
+    print(cache_parquet[:10])
