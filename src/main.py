@@ -1,5 +1,6 @@
-from sympy import im
+from pathlib import Path
 from utils import *
+from utils import _basic_generate_nuclei_command # 为了过类型检查
 import argparse
 import httpx
 # 导入pa和pq
@@ -77,6 +78,22 @@ def main(
         alive_assets = alive_assets[alive_assets['is_alive']].reset_index(drop=True)
     
     logger.info(f"{Fore.GREEN}已过滤不活跃的资产")
+    
+    # 保存探活结果到本地
+    cache_dir = Path(cache_parquet_path).parent
+    alive_assets_path = cache_dir / f"alive_assets.parquet"
+    pq.write_table(alive_assets, alive_assets_path)
+    logger.debug(f"{Fore.GREEN}探活结果已缓存到: {alive_assets_path}")
+    
+    nuclei_command = _basic_generate_nuclei_command(
+        project_name=project_name,
+        specified_template_path=config['nuclei']['template_dir'],
+        urls=alive_assets['link'].to_pylist(),
+        severity=config['nuclei']['severity']
+    )
+    logger.debug(f'{Fore.GREEN}生成Nuclei命令行指令成功')
+    
+    print(f"{Fore.CYAN}生成的Nuclei命令行指令: \n{nuclei_command}")
     return alive_assets
 
 if __name__ == "__main__":
@@ -95,4 +112,4 @@ if __name__ == "__main__":
         scan_settings=scan_settings,
         asset_params=asset_params
     )
-    print(cache_parquet[:10])
+    # print(cache_parquet[:10])

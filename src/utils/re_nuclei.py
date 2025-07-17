@@ -40,13 +40,13 @@ if nuclei_cli_params is None or not isinstance(nuclei_cli_params, dict) or nucle
 '''
 def _basic_generate_nuclei_command(
     project_name: str, # 输出路径
-    specified_template_path: str, 
+    specified_template_path: str = '', 
     urls: list = None,
     severity: list = None) -> str:
     """
     生成nuclei命令行指令
     :param project_name: 项目名称，用于输出路径
-    :param specified_template_path: 指定的模板路径
+    :param specified_template_path: 指定的模板路径(如./nuclei-templates); 具体的子模板路径在配置文件中指定
     :param urls: 要扫描的URL列表
     :param severity: 指定的威胁等级
     """
