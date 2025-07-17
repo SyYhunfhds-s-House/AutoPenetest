@@ -37,7 +37,7 @@ def main(
     size = scan_settings.get('size', 100)
     page = scan_settings.get('page', 1)
     timeout = scan_settings.get('timeout', 10)
-    
+    # 导入fofa进行资产扫描
     cache_parquet_path = asset_query_fofa(
         project_name=project_name,
         query_params=asset_params,
@@ -45,8 +45,22 @@ def main(
         page=page,
         timeout=timeout
     )
-    
-    return cache_parquet_path
+    # 导入httpx进行资产探活
+    raw_assets = pq.read_table(cache_parquet_path).to_pandas()
+    raw_urls = raw_assets['link'].tolist()
+    alive_table = alive_check_batch(
+        urls=raw_urls,
+        # max_workers=config['thread']['max'],
+        # filter_status_code=config['filter']['status_code']
+        # 上面两个配置都在config.yml里写好了
+    ) # 返回一个pyarrow的Table对象
+    # 合并探活结果和原始资产数据
+    alive_assets = merge_tables(
+        small_table=alive_table, big_table=raw_assets
+        )
+    # 根据is_alive列的布尔值删去无法访问的资产
+    alive_assets = alive_assets[alive_assets['is_alive']].reset_index(drop=True)
+    return alive_assets
 
 if __name__ == "__main__":
     project_name = "default_project"
@@ -55,11 +69,9 @@ if __name__ == "__main__":
         'port': '443',
         'server': 'nginx'
     }
-    cache_parquet_path = main(
+    cache_parquet = main(
         project_name=project_name,
         scan_settings={},
         asset_params=asset_params
     )
-    print(f"资产查询结果已缓存到: {cache_parquet_path}")
-    table = pq.read_table(cache_parquet_path)
-    print(table[:10])
+    print(cache_parquet[:10])

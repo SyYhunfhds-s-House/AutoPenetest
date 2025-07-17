@@ -1,4 +1,4 @@
-from .core import load_config, logger, find_project_root
+from .core import load_config, logger, find_project_root, merge_tables
 from .query import asset_query_fofa
 from .alive import alive_check_batch
 from .re_nuclei import _basic_generate_nuclei_command
