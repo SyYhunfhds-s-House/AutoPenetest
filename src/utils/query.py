@@ -1,3 +1,4 @@
+from sympy import im
 from .core import *
 
 import requests
@@ -5,6 +6,8 @@ import json
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+from colorama import init, Fore, Back, Style
+init(autoreset=True)
 
 from .core import logger
 
@@ -91,7 +94,7 @@ def asset_query_fofa(
             如设置timeout参数为更大的值"))
         exit(1)
     except Exception as e:
-        logger.error(e)
+        logger.error(f'{Fore.RED}{e}')
         exit(1)
     
     temp_filepath = assets_filter(project_name=project_name, res=dict_res, fields=fields)

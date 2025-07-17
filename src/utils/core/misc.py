@@ -107,7 +107,13 @@ def assets_filter(project_name:str | Path, res: dict | str, fields: list):
 
     return TAMP_DIR
 
-def merge_tables(big_table: pa.Table, small_table: pa.Table) -> pa.Table:
+def merge_tables(big_table: pa.Table | Any, small_table: pa.Table | Any) -> pa.Table:
+    # 如果输入是pandas DataFrame，先转换为pyarrow Table
+    if hasattr(big_table, 'to_arrow'):  # 检查是否是pandas DataFrame
+        big_table = big_table.to_arrow()
+    if hasattr(small_table, 'to_arrow'):
+        small_table = small_table.to_arrow()
+    
     target_schema = big_table.schema
     small_table_casted = small_table.cast(target_schema)
     merged_table = pa.concat_tables([big_table, small_table_casted])

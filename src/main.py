@@ -5,6 +5,9 @@ import httpx
 # 导入pa和pq
 import pyarrow as pa
 import pyarrow.parquet as pq
+# 导入终端文本样式
+from colorama import init, Fore, Back, Style
+init(autoreset=True)
 
 config = load_config()
 
@@ -45,6 +48,7 @@ def main(
         page=page,
         timeout=timeout
     )
+    logger.info(f"{Fore.GREEN}资产查询结果已缓存到: {cache_parquet_path}")
     # 导入httpx进行资产探活
     raw_assets = pq.read_table(cache_parquet_path).to_pandas()
     raw_urls = raw_assets['link'].tolist()
@@ -54,12 +58,14 @@ def main(
         # filter_status_code=config['filter']['status_code']
         # 上面两个配置都在config.yml里写好了
     ) # 返回一个pyarrow的Table对象
+    logger.info(f'{Fore.GREEN}资产探活完成')
     # 合并探活结果和原始资产数据
     alive_assets = merge_tables(
         small_table=alive_table, big_table=raw_assets
         )
     # 根据is_alive列的布尔值删去无法访问的资产
     alive_assets = alive_assets[alive_assets['is_alive']].reset_index(drop=True)
+    logger.info(f"{Fore.GREEN}已过滤不活跃的资产")
     return alive_assets
 
 if __name__ == "__main__":
