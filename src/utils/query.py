@@ -1,4 +1,5 @@
 from sympy import im
+from urllib3 import HTTPSConnectionPool
 from .core import *
 
 import requests
@@ -92,6 +93,10 @@ def asset_query_fofa(
     except TimeoutError:
         logger.warning(("网络连接超时，请检查网络状况; 若单次查询数据过大，请适当减少查询数据或延长请求时间, \
             如设置timeout参数为更大的值"))
+        exit(1)
+    except HTTPSConnectionPool as e:
+        logger.error(f'{Fore.RED}网络连接错误: {e}')
+        logger.error(f"{Fore.RED}{Style.BRIGHT}请检查网络连接或FOFA API配置")
         exit(1)
     except Exception as e:
         logger.error(f'{Fore.RED}{e}')

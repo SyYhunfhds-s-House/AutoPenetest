@@ -70,6 +70,9 @@ def main(
 
 if __name__ == "__main__":
     project_name = "default_project"
+    scan_settings = {
+        'timeout': 30,
+    }
     asset_params = {
         'domain': 'baidu.com',
         'port': '443',
@@ -77,7 +80,7 @@ if __name__ == "__main__":
     }
     cache_parquet = main(
         project_name=project_name,
-        scan_settings={},
+        scan_settings=scan_settings,
         asset_params=asset_params
     )
     print(cache_parquet[:10])

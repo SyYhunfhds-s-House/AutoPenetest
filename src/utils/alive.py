@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from ssl import SSLError, SSLCertVerificationError
 from urllib3.exceptions import InsecureRequestWarning
 from urllib3 import disable_warnings
-from httpx import ConnectTimeout, ConnectError
+from httpx import ConnectTimeout, ConnectError, ReadTimeout
 # 导入必要的模块
 from pathlib import Path
 import json
@@ -27,7 +27,6 @@ filter_status_code: list[int] = _config['filter']['status_code']
 # 全局禁用SSL验证报错
 disable_warnings(InsecureRequestWarning)
 
-# TODO 联动query.py，编写资产探活模块
 def alive_check(
     url: str,
     filter_status_code: list[int] = filter_status_code, # 过滤状态, 默认[200, 301, 302]
@@ -44,7 +43,10 @@ def alive_check(
     except ConnectError as e:
         logger.warning(f'{Fore.YELLOW}{url}SSL证书验证失败')
         return url, False
-    
+    except ReadTimeout as e:
+        logger.error(f"{Fore.YELLOW}{url}读取响应超时, 请忽略该url")
+        return url, False
+        
     if res.status_code in filter_status_code:
         return url, True
     return url, False
@@ -54,7 +56,6 @@ def get_alive_check(**new_params):
     global alive_check
     pass
 
-# TODO 整合单元函数，使用线程池自动分批进行扫描
 def alive_check_batch(
     urls: list[str],
     max_workers: int = max_workers,
