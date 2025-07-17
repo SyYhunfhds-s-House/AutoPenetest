@@ -1,6 +1,6 @@
 #TODO 通过YAML重新封装nuclei指令参数，并进行针对性指令生成
 
-from core import logger, load_config
+from .core import logger, load_config
 from pathlib import Path
 from functools import lru_cache # 缓存函数结果以提高性能
 from typing import Optional
@@ -19,6 +19,7 @@ def find_project_root(start: Optional[Path] = None) -> Optional[Path]:
             return path
     return None
 
+'''
 # 获取项目根目录
 # 如果没有.gitignore文件，则无法定位项目根目录
 project_root_path = find_project_root()
@@ -36,7 +37,7 @@ with open(nuclei_cli_params_path, 'r', encoding='utf-8') as f:
 if nuclei_cli_params is None or not isinstance(nuclei_cli_params, dict) or nuclei_cli_params == {}:
     logger.error("Nuclei CLI parameters file is empty")
     raise RuntimeError("Nuclei CLI parameters file is empty")
-
+'''
 def _basic_generate_nuclei_command(
     project_name: str, # 输出路径
     specified_template_path: str, 

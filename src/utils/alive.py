@@ -1,7 +1,7 @@
-from core import *
-from core import logger
-from query import _config, asset_query_fofa # 为了过类型检查
-from query import *
+from .core import *
+from .core import logger
+from .query import _config, asset_query_fofa # 为了过类型检查
+from .query import *
 from tqdm import tqdm
 import httpx
 # 导入线程池

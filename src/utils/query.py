@@ -1,10 +1,12 @@
-from core import *
+from .core import *
 
 import requests
 import json
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+from .core import logger
 
 _config = load_config()
 
@@ -15,7 +17,7 @@ _api = fofa_api['url']
 _key = fofa_api['key']
 _endpoint = fofa_api['endpoint']
 
-def test_query(query_params: dict, size: int=10, page: int = 1):
+def test_query(query_params: dict, size: int=100, page: int = 1):
     query_string = get_query_string(fields=fields, query_params=query_params)
     params = {
         'qbase64': query_string,
@@ -42,7 +44,7 @@ def test_query(query_params: dict, size: int=10, page: int = 1):
 def asset_query_fofa(
     project_name: str, # 项目名称
                      query_params: dict, 
-                     size: int=10, page: int = 1,
+                     size: int=100, page: int = 1,
                      timeout: int = 10
                      ): 
     """
@@ -75,6 +77,8 @@ def asset_query_fofa(
     }
     logger.info(f"正在进行{project_name}的资产查询任务")
     logger.debug(f"查询参数为{query_params}, 返回值列表为{fields},查询条数为{size}")
+    if size > 100:
+        logger.warning(("单次查询数据过大，可能需要较长时间，请耐心等待"))
     try:
         res = requests.get(
             url=f'{_api}{_endpoint}',
@@ -83,7 +87,8 @@ def asset_query_fofa(
         )
         dict_res = json.loads(res.text)
     except TimeoutError:
-        logger.warning(("网络连接超时，请检查网络状况; 若单次查询数据过大，请适当减少查询数据或延长请求时间"))
+        logger.warning(("网络连接超时，请检查网络状况; 若单次查询数据过大，请适当减少查询数据或延长请求时间, \
+            如设置timeout参数为更大的值"))
         exit(1)
     except Exception as e:
         logger.error(e)
