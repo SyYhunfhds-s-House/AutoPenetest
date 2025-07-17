@@ -34,7 +34,7 @@ class AssetScanner(ABC):
 def get_query_string(fields: list, query_params: dict):
     """
     生成查询字符串。
-
+    2025年7月17日 17:11:54改动: 移除交集检查，现在传什么查询参数就是什么
     Args:
         fields (list): 需要包含在查询字符串中的字段列表。
         query_params (dict): 查询参数，字典的键表示字段名，值表示对应的值。
@@ -53,7 +53,7 @@ def get_query_string(fields: list, query_params: dict):
         return b64encode("".encode())
     query_strings = []
     for key, value in query_params.items():
-        if key in fields:
+        # if key in fields:
             query_strings.append(f'{key}="{value}"')
     return b64encode(" && ".join(query_strings).encode())
 
