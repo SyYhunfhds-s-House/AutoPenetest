@@ -60,6 +60,7 @@ def main(
     ) # 返回一个pyarrow的Table对象
     logger.info(f'{Fore.GREEN}资产探活完成')
     # 合并探活结果和原始资产数据
+    print(type(alive_table), type(raw_assets))
     alive_assets = merge_tables(
         small_table=alive_table, big_table=raw_assets
         )
@@ -72,6 +73,7 @@ if __name__ == "__main__":
     project_name = "default_project"
     scan_settings = {
         'timeout': 30,
+        'size': 10
     }
     asset_params = {
         'domain': 'baidu.com',

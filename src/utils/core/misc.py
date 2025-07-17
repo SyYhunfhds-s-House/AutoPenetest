@@ -4,6 +4,8 @@ from base64 import b64encode
 from functools import lru_cache
 from pathlib import Path
 import json
+from colorama import Fore
+from pandas import DataFrame
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -106,18 +108,35 @@ def assets_filter(project_name:str | Path, res: dict | str, fields: list):
     pq.write_table(table, TAMP_DIR)
 
     return TAMP_DIR
-
-def merge_tables(big_table: pa.Table | Any, small_table: pa.Table | Any) -> pa.Table:
-    # 如果输入是pandas DataFrame，先转换为pyarrow Table
-    if hasattr(big_table, 'to_arrow'):  # 检查是否是pandas DataFrame
-        big_table = big_table.to_arrow()
-    if hasattr(small_table, 'to_arrow'):
-        small_table = small_table.to_arrow()
+def merge_tables(big_table: pa.Table | DataFrame, small_table: pa.Table | DataFrame) -> pa.Table:
+    """合并两个表格，支持PyArrow Table和Pandas DataFrame输入
     
+    Args:
+        big_table: 主表格，可以是PyArrow Table或Pandas DataFrame
+        small_table: 次表格，可以是PyArrow Table或Pandas DataFrame
+        
+    Returns:
+        pa.Table: 合并后的PyArrow Table
+        
+    Raises:
+        TypeError: 如果输入类型不是PyArrow Table或Pandas DataFrame
+    """
+    # 转换big_table为PyArrow Table
+    if isinstance(big_table, DataFrame):
+        big_table = pa.Table.from_pandas(big_table)
+    elif not isinstance(big_table, pa.Table):
+        raise TypeError(f"big_table必须是pyarrow.Table或pandas.DataFrame类型，实际是{type(big_table)}")
+    
+    # 转换small_table为PyArrow Table
+    if isinstance(small_table, DataFrame):
+        small_table = pa.Table.from_pandas(small_table)
+    elif not isinstance(small_table, pa.Table):
+        raise TypeError(f"small_table必须是pyarrow.Table或pandas.DataFrame类型，实际是{type(small_table)}")
+    
+    # 合并表格
     target_schema = big_table.schema
     small_table_casted = small_table.cast(target_schema)
-    merged_table = pa.concat_tables([big_table, small_table_casted])
-    return merged_table
+    return pa.concat_tables([big_table, small_table_casted])
 
 if __name__ == '__main__':
     from platform import system
