@@ -156,7 +156,11 @@ def merge_tables(big_table: pa.Table | DataFrame, small_table: pa.Table | DataFr
     
     # 更新大表数据(用小表覆盖共有字段)
     for field in common_fields:
-        big_df[field].update(small_df[field])
+        # 解决链式赋值和数据类型不兼容问题
+        if small_df[field].dtype == bool:
+            big_df[field] = small_df[field].astype(bool)
+        else:
+            big_df[field] = small_df[field]
     
     # 添加小表独有字段数据
     for field in small_only_fields:
