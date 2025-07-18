@@ -33,6 +33,7 @@ basedir_temp = _config['basedir']['temp']  # 缓存文件的根路径
 def _check_raw_assets_cache(
     project_name: str, # 项目名称
 ) -> Any:
+    logger.debug(f"{Fore.YELLOW}正在检查{project_name}项目是否存在原始资产缓存文件...")
     global pq_raw_assets_filename
     pq_raw_assets_path : Path = Path(basedir_temp) / project_name / pq_raw_assets_filename
     if not pq_raw_assets_path.exists():
@@ -119,16 +120,24 @@ def asset_query_fofa(
     raw_assets_path = _check_raw_assets_cache(project_name=project_name)
     if raw_assets_path is not None:
         return raw_assets_path
+    else:
+        logger.info(f"{Fore.YELLOW}缓存文件为空, 将重新进行fofa查询")
     
     if size > 100:
         logger.warning(("单次查询数据过大，可能需要较长时间，请耐心等待"))
     try:
+        logger.info(f"{Fore.GREEN}开始发起fofa请求")
         res = requests.get(
             url=f'{_api}{_endpoint}',
             params=params,
             timeout=timeout
         )
         dict_res = json.loads(res.text)
+        logger.info(f"{Fore.GREEN}fofa查询成功")
+        if dict_res['size'] == 0:
+            logger.warning(f"{Fore.YELLOW}未找到符合条件的资产, 程序退出")
+            exit(1)
+        
     except TimeoutError:
         logger.warning(("网络连接超时，请检查网络状况; 若单次查询数据过大，请适当减少查询数据或延长请求时间, \
             如设置timeout参数为更大的值"))
