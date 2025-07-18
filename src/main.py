@@ -67,7 +67,36 @@ def get_argparser():
 def check_and_filter_args(args: argparse.Namespace):
     
     # TODO 实现参数检查逻辑
+    
+    # 项目名称
     project_name = args.project
+    
+    # 扫描参数
+    timeout = args.timeout
+    size = args.size
+    template_dir = args.template_dir
+    if template_dir is None or template_dir == '':
+        template_dir = config['nuclei']['template_dir']
+    scan_settings = {
+        'timeout': timeout,
+        'size': size,
+        'template_dir': template_dir
+    }
+    # 资产查询参数
+    domains = args.domain.split(',')
+    ports = args.port(',')
+    servers = args.server.split(',')
+    asset_params = {
+        'domain': domains,
+        'port': ports,
+        'server': servers
+    }
+    # nuclei配置参数
+    nuclei_settings = {
+        'concurrency': args.concurrency
+    }
+    
+    return project_name, scan_settings, asset_params, nuclei_settings
 
 # 程序主入口
 def main(
@@ -184,6 +213,9 @@ def _test_main():
         scan_settings=scan_settings,
         asset_params=asset_params
     )
+    
+def _test_args_main():
+    pass
 
 if __name__ == "__main__":
     _test_main()
