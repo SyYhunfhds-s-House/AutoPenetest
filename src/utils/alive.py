@@ -27,7 +27,6 @@ filter_status_code: list[int] = _config['filter']['status_code']
 # 全局禁用SSL验证报错
 disable_warnings(InsecureRequestWarning)
 
-# TODO 编写断点重新探活函数, 自动调用已有缓存的原始资产
 pq_cache = _config['pq_cache']
 pq_raw_assets_path = pq_cache[0]  # 原始资产数据缓存文件名
 pq_alive_assets_path = pq_cache[1]  # 探活资产数据缓存文件
@@ -58,7 +57,6 @@ def _check_alive_assets_cache(
         logger.warning(f"{Fore.YELLOW}活跃资产缓存文件 {pq_alive_assets_path} 存在但条目为空")
         return None
     
-    # TODO 询问用户是否重新探活, 如果选择否, 则直接返回缓存
     user_input = input(f"{Fore.BLUE}检测到{project_name}项目拥有已探活的资产的缓存, 是否对{project_name}任务进行重新探活 ? (y/n):{Style.RESET_ALL} ")
     if user_input.lower() == 'n':
         return alive_table

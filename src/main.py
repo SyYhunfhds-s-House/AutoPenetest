@@ -109,8 +109,10 @@ def main(
         alive_assets_df = alive_assets_df.dropna(how='all').reset_index(drop=True)
         alive_assets = pa.Table.from_pandas(alive_assets_df)
         logger.debug(f"{Fore.GREEN}已去除表格中的空行")
+        logger.info(f'{Fore.GREEN}已合并资产结果; 已过滤不活跃的资产')
         del alive_assets_df
-    
+        
+        
     nuclei_command = _basic_generate_nuclei_command(
         project_name=project_name,
         specified_template_path=template_dir,
