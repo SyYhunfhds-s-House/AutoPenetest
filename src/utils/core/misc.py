@@ -56,6 +56,12 @@ def get_query_string(fields: list, query_params: dict):
     query_strings = []
     for key, value in query_params.items():
         # if key in fields:
+        # 针对fofaAPI列表对不同类型的值进行不同的处理
+        if isinstance(value, bool):
+            query_strings.append(f'({key}={value})') # 不用加引号
+        elif isinstance(value, list):
+            query_strings.append(f'({key}="{"||".join(value)}")')
+        else:
             query_strings.append(f'{key}="{value}"')
     return b64encode(" && ".join(query_strings).encode())
 

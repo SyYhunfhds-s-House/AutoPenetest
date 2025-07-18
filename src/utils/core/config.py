@@ -17,7 +17,7 @@ def find_project_root(start: Optional[Path] = None) -> Optional[Path]:
             return path
     return None
 
-@lru_cache
+@lru_cache(maxsize=None)
 def load_config(config_filename="config.yml"):
     project_root = find_project_root()
     if project_root is None:

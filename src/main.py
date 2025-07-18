@@ -16,20 +16,58 @@ config = load_config()
 
 # TODO 根据main函数编写命令行参数
 def get_argparser():
-    pass
+    argpaerser = argparse.ArgumentParser()
+    # 设置项目名称
+    argpaerser.add_argument(
+        '-p', '--project', type=str, required=True, help='Project name | 项目名称'
+    )
+    # 类fofa查询语法 # 由于架构问题, 下面的参数都只能指定一个
+    # 查询域名 domain
+    argpaerser.add_argument(
+        '-d', '--domain', type=str, default='', help='Domain to search(support only one domain) | 指定搜索域名(单次运行只可以搜索一个域名) \
+            e.g.: --domain example.com'
+    )
+    # 查询服务器类型 server
+    argpaerser.add_argument(
+        '-s', '--server', type=str, default='', help='Server type to search | 指定搜索服务器类型 \
+            e.g.: --server nginx'
+    )
+    # 查询资产端口
+    argpaerser.add_argument(
+        '-po', '--port', type=str, default="80,443", help='Port to search | 指定搜索端口(多个端口请使用逗号分隔) \
+            e.g.: --port 443'
+    )
+    
+    # fofa查询参数
+    # fofa查询超时时间 timeout # 超出这个时间即视为网络连接不稳定导致的掉线
+    argpaerser.add_argument(
+        '--timeout', type=int, default=30, help='Timeout for fofa query | fofa查询超时时间 \ ')
+    # fofa查询条数 size
+    argpaerser.add_argument(
+        '-si', '--size', type=int, default=100, help='Size of the result set | fofa查询条数 \ '
+    )
+    
+    # nuclei运行参数
+    # 模板主路径 # 没有完整包含nuclei的所有参数，所以有需要的话需要自己改一下模板路径
+    argpaerser.add_argument(
+        # 使用template_dir而不是template是为了和后面的路径拼接配合
+        '-t', '--template-dir', type=str, default='', help='Template path | 指定模板路径 \
+            e.g.: --template-dir /home/user/nuclei-templates'
+            # 显式指定名称
+    )
+    '''# 导出的文件类型, 允许值范围为["markdown-export", "json-export"]
+    # 配合nuclei设置
+    argpaerser.add_argument(
+        '-e', '--export', type=str, choices=["markdown-export", "json-export"], default="markdown-export", help='Export format | 指定导出格式 \
+            e.g.: --export markdown-export'
+    )'''
+    return argpaerser
 
-def check_args(args: argparse.Namespace):
-    """
-    检查命令行参数的有效性。
-
-    Args:
-        args (argparse.Namespace): 命令行参数对象。
-
-    Returns:
-        bool: 如果参数有效返回True，否则返回False。
-    """
+# TODO 检查并清洗参数
+def check_and_filter_args(args: argparse.Namespace):
+    
     # TODO 实现参数检查逻辑
-    return True
+    project_name = args.project
 
 # 程序主入口
 def main(
@@ -55,6 +93,10 @@ def main(
     # 导入httpx进行资产探活
     raw_assets = pq.read_table(cache_parquet_path).to_pandas()
     raw_urls = raw_assets['link'].tolist()
+    if len(raw_urls) == 0:
+        logger.error(f"{Fore.RED}未发现可用资产, 可能是网络连接异常")
+        exit(1)
+    
     alive_table = alive_check_batch(
         project_name=project_name,
         urls=raw_urls,
@@ -122,18 +164,18 @@ def main(
     logger.debug(f'{Fore.GREEN}生成Nuclei命令行指令成功')
     
     print(f"{Fore.CYAN}生成的Nuclei命令行指令: \n{nuclei_command}")
-    return alive_assets
+    return nuclei_command
 
-if __name__ == "__main__":
+def _test_main():
     config = load_config()
-    project_name = "default_project"
+    project_name = "default_project123"
     scan_settings = {
         'timeout': 30,
         'size': 10,
         'template_dir': config['nuclei']['template_dir']
     }
     asset_params = {
-        'domain': 'baidu.com',
+        'domain': ['google.com'],
         'port': '443',
         'server': 'nginx'
     }
@@ -142,4 +184,12 @@ if __name__ == "__main__":
         scan_settings=scan_settings,
         asset_params=asset_params
     )
+
+if __name__ == "__main__":
+    _test_main()
+    '''args = get_argparser().parse_args()
+    from rich.console import Console
+    console = Console()
+    console.print(args)'''
+    
     # print(cache_parquet[:10])

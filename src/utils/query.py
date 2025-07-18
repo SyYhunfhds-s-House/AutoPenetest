@@ -41,11 +41,16 @@ def _check_raw_assets_cache(
         try:
             raw_table = pq.read_table(pq_raw_assets_path)
             if raw_table is None or raw_table.num_rows == 0:
-                logger.debug(f"{Fore.YELLOW}{project_name}任务尚未进行扫描")
+                logger.debug(f"{Fore.YELLOW}{project_name}任务存在本地缓存文件但为空, 但未进行扫描")
                 return None
             else:
-                logger.info(f"{Fore.GREEN}已从缓存中读取到原始资产数据, 共{raw_table.num_rows}条")
-                return pq_raw_assets_path
+                # 询问用户是否重新进行资产查询
+                retry = input(f"{Fore.YELLOW}检测到本地缓存, 是否重新进行资产查询? [y/n]:{Style.RESET_ALL} ")
+                if retry.lower() == 'y':
+                    return None
+                else:
+                    logger.info(f"{Fore.GREEN}已从缓存中读取到原始资产数据, 共{raw_table.num_rows}条")
+                    return pq_raw_assets_path
         except Exception as e:
             logger.error(e)
             return None
@@ -108,8 +113,8 @@ def asset_query_fofa(
         'key': _key,
         'fields': ','.join(fields)
     }
-    logger.info(f"正在进行{project_name}的资产查询任务")
-    logger.debug(f"查询参数为{query_params}, 返回值列表为{fields},查询条数为{size}")
+    logger.info(f"{Fore.CYAN}正在进行{project_name}的资产查询任务")
+    logger.debug(f"{Fore.BLUE}查询参数为{query_params}, 返回值列表为{fields},查询条数为{size}")
     
     raw_assets_path = _check_raw_assets_cache(project_name=project_name)
     if raw_assets_path is not None:

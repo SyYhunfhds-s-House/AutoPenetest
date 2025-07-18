@@ -17,7 +17,7 @@ def find_project_root(start: Optional[Path] = None) -> Optional[Path]:
             return path
     return None
 
-@lru_cache
+@lru_cache(maxsize=None)
 def load_config(config_filename="config.yml"):
     project_root = find_project_root()
     if project_root is None:
@@ -37,7 +37,7 @@ _config = load_config()
 from loguru import logger
 
 # 定义控制台记录器和文件记录器，其中log日志位于项目根目录的logs/路径下
-@lru_cache
+@lru_cache(maxsize=None)
 def setup_logger():
     """
     设置 loguru 日志器，控制台输出和文件输出，日志文件位于项目根目录 logs/ 目录下。
