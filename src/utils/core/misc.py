@@ -58,7 +58,7 @@ def get_query_string(fields: list, query_params: dict):
         # if key in fields:
         # 针对fofaAPI列表对不同类型的值进行不同的处理
         if isinstance(value, bool):
-            query_strings.append(f'({key}={value})') # 不用加引号
+            query_strings.append(f'({key}={str(value).lower()})') # 不用加引号
         elif isinstance(value, list):
             multi_params_string = "||".join([
                 f'{key}="{item}"' for item in value
