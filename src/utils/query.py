@@ -134,10 +134,13 @@ def asset_query_fofa(
         )
         dict_res = json.loads(res.text)
         logger.info(f"{Fore.GREEN}fofa查询成功")
+        # print(dict_res)
         if dict_res['size'] == 0:
             logger.warning(f"{Fore.YELLOW}未找到符合条件的资产, 程序退出")
             exit(1)
-        
+        else:
+            logger.info(f"{Fore.GREEN}共有{dict_res['size']}条资产, 当前仅取前{size}条数据")
+            
     except TimeoutError:
         logger.warning(("网络连接超时，请检查网络状况; 若单次查询数据过大，请适当减少查询数据或延长请求时间, \
             如设置timeout参数为更大的值"))

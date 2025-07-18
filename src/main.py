@@ -171,13 +171,13 @@ def _test_main():
     project_name = "default_project123"
     scan_settings = {
         'timeout': 30,
-        'size': 10,
+        'size': 100,
         'template_dir': config['nuclei']['template_dir']
     }
     asset_params = {
-        'domain': ['google.com'],
-        'port': '443',
-        'server': 'nginx'
+        'domain': ['google.com', 'example.com'],
+        'port': ['443', '80'],
+        # 'server': 'nginx'
     }
     cache_parquet = main(
         project_name=project_name,

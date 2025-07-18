@@ -60,7 +60,10 @@ def get_query_string(fields: list, query_params: dict):
         if isinstance(value, bool):
             query_strings.append(f'({key}={value})') # 不用加引号
         elif isinstance(value, list):
-            query_strings.append(f'({key}="{"||".join(value)}")')
+            multi_params_string = "||".join([
+                f'{key}="{item}"' for item in value
+            ])
+            query_strings.append(f'({multi_params_string})')
         else:
             query_strings.append(f'{key}="{value}"')
     return b64encode(" && ".join(query_strings).encode())
