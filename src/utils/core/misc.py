@@ -56,6 +56,8 @@ def get_query_string(fields: list, query_params: dict):
     query_strings = []
     for key, value in query_params.items():
         # if key in fields:
+        if value == '' or len(value) == 0: # 如果value为空或者长度为0，则跳过
+            continue
         # 针对fofaAPI列表对不同类型的值进行不同的处理
         if isinstance(value, bool):
             query_strings.append(f'({key}={str(value).lower()})') # 不用加引号

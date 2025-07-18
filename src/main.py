@@ -55,6 +55,7 @@ def get_argparser():
             e.g.: --template-dir /home/user/nuclei-templates'
             # 显式指定名称
     )
+    # concurrency 并发模板数
     '''# 导出的文件类型, 允许值范围为["markdown-export", "json-export"]
     # 配合nuclei设置
     argpaerser.add_argument(
@@ -84,16 +85,23 @@ def check_and_filter_args(args: argparse.Namespace):
     }
     # 资产查询参数
     domains = args.domain.split(',')
-    ports = args.port(',')
+    ports = args.port.split(',')
     servers = args.server.split(',')
     asset_params = {
         'domain': domains,
         'port': ports,
         'server': servers
     }
+    empty_num = 0
+    for k,v in asset_params.items():
+        if len(v) == 0 or v[0] == '':
+            empty_num += 1
+    if empty_num == 0:
+        logger.error(f"{Fore.RED}至少要指定一个查询条件")
+        exit(1)
     # nuclei配置参数
     nuclei_settings = {
-        'concurrency': args.concurrency
+        # 'concurrency': args.concurrency
     }
     
     return project_name, scan_settings, asset_params, nuclei_settings
@@ -215,10 +223,17 @@ def _test_main():
     )
     
 def _test_args_main():
-    pass
+    args = get_argparser().parse_args()
+    project_name, scan_settings, asset_params, nuclei_settings = check_and_filter_args(args)
+    nuclei_command = main(
+        project_name=project_name,
+        scan_settings=scan_settings,
+        asset_params=asset_params
+    )
 
 if __name__ == "__main__":
-    _test_main()
+    # _test_main()
+    _test_args_main()
     '''args = get_argparser().parse_args()
     from rich.console import Console
     console = Console()
