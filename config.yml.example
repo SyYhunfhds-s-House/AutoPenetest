@@ -1,3 +1,74 @@
+# 扫描参数
 api:
-  url: "https://fofoapi.com/"
-  key: "更换成你的apikey"
+  fofa:
+    url: "https://fofa.info/api"  # 替换为实际的FOFA API地址
+    key: "替换为您的FOFA API KEY"  # 替换为您的FOFA API KEY
+    endpoint: "/api/v1/search/all"
+  shodan:
+    url: "https://api.shodan.io"  # 替换为实际的Shodan API地址
+    key: "替换为您的Shodan API KEY"  # 替换为您的Shodan API KEY
+    endpoint: "/shodan/host/search"
+  zoomeye:
+    url: "https://api.zoomeye.org"  # 替换为实际的ZoomEye API地址
+    key: "替换为您的ZoomEye API KEY"  # 替换为您的ZoomEye API KEY
+    endpoint: "/host/search"
+
+fields: # 资产涉及的域
+  - domain
+  - ip
+  - link
+  - title
+  - os
+  - host
+  - server
+  # 设置更多域时请确保自己查询时的域也包含在里面
+
+filter:
+  status_code: # 需要的响应状态码
+    - 200
+    - 301
+    - 302
+
+modes: # 扫描模式
+  nuclei: # 针对nuclei的扫描模式
+    templates: # 由模板子路径指定的扫描模式
+    - "." # 全模板扫描
+    - "http/cves" # HTTP CVE POC扫描
+    # 更多扫描模式请写在这里
+    - "http/fuzzing" # HTTP 模糊测试扫描
+
+# 程序参数
+thread:
+  max: 20 # 最大线程数
+log:
+  console: True # 控制台日志
+  file_handler: True # 文件日志
+  level: "INFO" # 控制台日志等级
+
+basedir: # 基础目录设置
+  temp: "temp/" # 缓存文件的路径, 其下再使用项目名称进行进一步分隔
+  result: "output/" # 结果输出目录
+
+pq_cache: # PQ缓存路径
+  - "raw_assets.parquet" # 原始资产数据缓存路径
+  - "alive_assets.parquet" # 探活资产数据缓存路径
+  - "scan_assets.parquet" # 扫描资产数据缓存路径
+
+# 漏洞扫描工具
+toolkit: # 可执行路径即POC仓库
+  nuclei: &path
+    exe: "替换为nuclei可执行文件路径"  # 替换为实际的nuclei.exe路径
+    template_dir: "替换为nuclei模板目录路径"  # 替换为实际的nuclei-templates路径
+
+nuclei:
+  <<: *path # 引用上面的路径
+  severity: # -s 指定运行的模板等级
+    - medium
+    - high
+    - critical
+  limit-rate: # 限速
+    concurrency: 30 # -c 并行执行的最大模板数 
+  output: # 导出配置 # 有优先级 # 越优先的越靠前
+    # 后接参数为项目路径名称
+    markdown-export: True
+    json-export: False
