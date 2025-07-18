@@ -1,4 +1,4 @@
-# 扫描参数
+# 扫描参数 # 目前只做了nuclei的部分
 api:
   fofa:
     url: "https://fofa.info/api"  # 替换为实际的FOFA API地址
@@ -21,7 +21,6 @@ fields: # 资产涉及的域
   - os
   - host
   - server
-  # 设置更多域时请确保自己查询时的域也包含在里面
 
 filter:
   status_code: # 需要的响应状态码

@@ -52,9 +52,11 @@ def setup_logger():
     # 移除默认的 loguru 处理器
     logger.remove()
     # 控制台输出
-    logger.add(lambda msg: print(msg, end=""), level=_config['log']['level'])
+    if _config['log']['enable_console']:
+        logger.add(lambda msg: print(msg, end=""), level=_config['log']['level'])
     # 文件输出
-    logger.add(str(log_file), rotation="10 MB", retention="10 days", encoding="utf-8", level="INFO")
+    if _config['log']['enable_file_handler']:
+        logger.add(str(log_file), rotation="10 MB", retention="10 days", encoding="utf-8", level="INFO")
     return logger
 
 # 初始化日志器
