@@ -1,4 +1,5 @@
 from pathlib import Path
+from subprocess import run
 
 from pandas import DataFrame
 from utils import *
@@ -200,7 +201,11 @@ def main(
     )
     logger.debug(f'{Fore.GREEN}生成Nuclei命令行指令成功')
     
-    print(f"{Fore.CYAN}生成的Nuclei命令行指令: \n{nuclei_command}")
+    logger.info(f"{Fore.CYAN}生成的Nuclei命令行指令: \n{nuclei_command}")
+    
+    # 使用subprocess.run执行指令，并将输出打印到控制台
+    run(nuclei_command, shell=True)
+    
     return nuclei_command
 
 def _test_main():
