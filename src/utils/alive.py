@@ -38,19 +38,16 @@ def _check_alive_assets_cache(
     project_name: str, # 项目名称
 ) -> Optional[pa.Table]:
     """
-    检查活跃资产缓存是否存在。
+       检查活跃资产缓存文件。
 
-    Args:
-        project_name (str): 项目名称
+       Args:
+           project_name (str): 项目名称。
 
-    Returns:
-        pyarrow.Table: 如果活跃资产缓存存在，则返回读取的活跃资产表；否则返回 None。
+       Returns:
+           Optional[pa.Table]: 如果缓存文件存在且非空，则返回缓存的活跃资产表；否则返回None。
 
     """
-    '''pq_raw_assets_path = Path(basedir_temp) / project_name / pq_raw_assets_path
-    if not pq_raw_assets_path.exists():
-        logger.error(f"{Fore.RED}原始资产缓存不存在, 请先执行原始资产查询")
-        raise FileNotFoundError(f"{Fore.RED}{Style.BRIGHT}函数{_check_alive_assets_cache.__name__}为模块私有函数, 请勿直接调用")'''
+    
     global pq_alive_assets_path
     pq_alive_assets_path = Path(basedir_temp) / project_name / pq_alive_assets_path
     if not pq_alive_assets_path.exists():
@@ -60,7 +57,13 @@ def _check_alive_assets_cache(
     if alive_table is None or alive_table.num_rows == 0:
         logger.warning(f"{Fore.YELLOW}活跃资产缓存文件 {pq_alive_assets_path} 存在但条目为空")
         return None
-    return alive_table
+    
+    # TODO 询问用户是否重新探活, 如果选择否, 则直接返回缓存
+    user_input = input(f"检测到{project_name}项目拥有已探活的资产的缓存, 是否对{project_name}任务进行重新探活 ? (y/n): ")
+    if user_input.lower() == 'n':
+        return alive_table
+    else:
+        return None
 
 def alive_check(
     url: str,
