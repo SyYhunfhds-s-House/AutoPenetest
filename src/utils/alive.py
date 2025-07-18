@@ -59,7 +59,7 @@ def _check_alive_assets_cache(
         return None
     
     # TODO 询问用户是否重新探活, 如果选择否, 则直接返回缓存
-    user_input = input(f"检测到{project_name}项目拥有已探活的资产的缓存, 是否对{project_name}任务进行重新探活 ? (y/n): ")
+    user_input = input(f"{Fore.BLUE}检测到{project_name}项目拥有已探活的资产的缓存, 是否对{project_name}任务进行重新探活 ? (y/n):{Style.RESET_ALL} ")
     if user_input.lower() == 'n':
         return alive_table
     else:
