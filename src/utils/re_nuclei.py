@@ -1,5 +1,3 @@
-#TODO 通过YAML重新封装nuclei指令参数，并进行针对性指令生成
-
 from .core import logger, load_config
 from pathlib import Path
 from functools import lru_cache # 缓存函数结果以提高性能

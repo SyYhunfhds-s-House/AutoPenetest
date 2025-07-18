@@ -21,6 +21,19 @@ _api = fofa_api['url']
 _key = fofa_api['key']
 _endpoint = fofa_api['endpoint']
 
+# TODO 编写断点重新查询函数, 自动调用已有缓存的原始资产
+# 目前只支持FOFA查询
+pq_cache = _config['pq_cache']
+pq_raw_assets_path = pq_cache[0]  # 原始资产数据缓存文件名
+pq_alive_assets_path = pq_cache[1]  # 探活资产数据缓存文件
+del pq_cache  # 删除pq_cache变量, 避免污染全局命名空间
+basedir_temp = _config['basedir']['temp']  # 缓存文件的根路径
+
+def _check_raw_assets_cache(
+    project_name: str, # 项目名称
+):
+    pass
+
 def test_query(query_params: dict, size: int=100, page: int = 1):
     query_string = get_query_string(fields=fields, query_params=query_params)
     params = {

@@ -29,7 +29,6 @@ def check_args(args: argparse.Namespace):
     # TODO 实现参数检查逻辑
     return True
 
-# TODO 编写程序主入口
 # 程序主入口
 def main(
     project_name: str, # 项目名称
@@ -54,6 +53,7 @@ def main(
     raw_assets = pq.read_table(cache_parquet_path).to_pandas()
     raw_urls = raw_assets['link'].tolist()
     alive_table = alive_check_batch(
+        project_name=project_name,
         urls=raw_urls,
         # max_workers=config['thread']['max'],
         # filter_status_code=config['filter']['status_code']
