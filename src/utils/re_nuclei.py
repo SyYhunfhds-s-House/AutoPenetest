@@ -88,7 +88,7 @@ def _basic_generate_nuclei_command(
     output_filetype_config: dict[str, bool] = config['nuclei']['output']
     for output_type, enabled in output_filetype_config.items():
         if enabled:
-            command += f" -{output_type} {output_path}"
+            command += f" -{output_type} {output_path} "
     # 加入URLs
     if len(urls) == 1:
         command += f" -u {urls[0]}"
