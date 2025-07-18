@@ -4,6 +4,8 @@ from .core import *
 
 import requests
 import json
+from pathlib import Path
+from typing import Optional, Union, Any, Literal
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -24,16 +26,30 @@ _endpoint = fofa_api['endpoint']
 # TODO 编写断点重新查询函数, 自动调用已有缓存的原始资产
 # 目前只支持FOFA查询
 pq_cache = _config['pq_cache']
-pq_raw_assets_path = pq_cache[0]  # 原始资产数据缓存文件名
-pq_alive_assets_path = pq_cache[1]  # 探活资产数据缓存文件
+pq_raw_assets_filename = pq_cache[0]  # 原始资产数据缓存文件名
 del pq_cache  # 删除pq_cache变量, 避免污染全局命名空间
 basedir_temp = _config['basedir']['temp']  # 缓存文件的根路径
 
 def _check_raw_assets_cache(
     project_name: str, # 项目名称
-):
-    pass
-
+) -> Any:
+    global pq_raw_assets_filename
+    pq_raw_assets_path : Path = Path(basedir_temp) / project_name / pq_raw_assets_filename
+    if not pq_raw_assets_path.exists():
+        return None
+    else:
+        try:
+            raw_table = pq.read_table(pq_raw_assets_path)
+            if raw_table is None or raw_table.num_rows == 0:
+                logger.debug(f"{Fore.YELLOW}{project_name}任务尚未进行扫描")
+                return None
+            else:
+                logger.info(f"{Fore.GREEN}已从缓存中读取到原始资产数据, 共{raw_table.num_rows}条")
+                return pq_raw_assets_path
+        except Exception as e:
+            logger.error(e)
+            return None
+    
 def test_query(query_params: dict, size: int=100, page: int = 1):
     query_string = get_query_string(fields=fields, query_params=query_params)
     params = {
@@ -94,6 +110,11 @@ def asset_query_fofa(
     }
     logger.info(f"正在进行{project_name}的资产查询任务")
     logger.debug(f"查询参数为{query_params}, 返回值列表为{fields},查询条数为{size}")
+    
+    raw_assets_path = _check_raw_assets_cache(project_name=project_name)
+    if raw_assets_path is not None:
+        return raw_assets_path
+    
     if size > 100:
         logger.warning(("单次查询数据过大，可能需要较长时间，请耐心等待"))
     try:
